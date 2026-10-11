@@ -1,0 +1,102 @@
+name: tavolo-demo
+x-app: &app
+  build:
+    context: ./backend
+    secrets:
+      - proxy_ca
+  image: tavolo-api:demo
+  env_file: .env
+  environment: &env
+    DATABASE_URL: postgresql+psycopg://tavolo_app:local-demo-app@db:5432/tavolo_demo
+    MIGRATION_DATABASE_URL: postgresql+psycopg://tavolo_owner:local-demo-owner@db:5432/tavolo_demo
+    REDIS_URL: redis://redis:6379/0
+    APP_BASE_URL: http://localhost:8081
+    API_BASE_URL: http://localhost:8081
+  restart: unless-stopped
+services:
+  db:
+    image: postgres:16-bookworm
+    environment:
+      POSTGRES_USER: tavolo_owner
+      POSTGRES_PASSWORD: local-demo-owner
+      POSTGRES_DB: tavolo_demo
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/init.sql:/docker-entrypoint-initdb.d/01-roles.sql:ro
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U tavolo_owner -d tavolo_demo']
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+  redis:
+    image: redis:7-bookworm
+    command: [redis-server, --appendonly, 'yes']
+    volumes: [redis_data:/data]
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+  migrate:
+    <<: *app
+    command: [alembic, upgrade, head]
+    restart: 'no'
+    depends_on:
+      db: {condition: service_healthy}
+  api:
+    <<: *app
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ready')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  worker:
+    <<: *app
+    command: [celery, -A, app.workers.tasks.celery, worker, --loglevel=WARNING, --concurrency=2]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+  scheduler:
+    <<: *app
+    command: [celery, -A, app.workers.tasks.celery, beat, --loglevel=WARNING, --schedule=/work/celerybeat-schedule]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+  frontend:
+    build:
+      context: ./frontend
+      secrets: [proxy_ca]
+    ports: ['127.0.0.1:8081:80']
+    depends_on:
+      api: {condition: service_healthy}
+    restart: unless-stopped
+  seed:
+    <<: *app
+    profiles: [tools]
+    command: [python, -m, app.seed]
+    restart: 'no'
+    volumes: ['./work:/work']
+    environment:
+      <<: *env
+      DEMO_ACCESS_PATH: /work/demo-access.json
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+  frontend-check:
+    build:
+      context: ./frontend
+      target: build
+      secrets: [proxy_ca]
+    profiles: [tools]
+    command: [npm, test]
+    restart: 'no'
+volumes:
+  postgres_data:
+  redis_data:
+secrets:
+  proxy_ca:
+    file: ${TAVOLO_BUILD_CA:-/dev/null}
