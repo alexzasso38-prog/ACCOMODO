@@ -43,7 +43,7 @@ def main():
                 for start,end in [(time(12),time(15)),(time(19),time(23,30))]:
                     db.add(ServiceSchedule(tenant_id=tenant.id,venue_id=v.id,weekday=day,local_start_time=start,local_end_time=end,slot_interval_minutes=30,duration_minutes=90,max_arrivals_per_slot=4))
             for role in ['staff','manager']:
-                pwd=secrets.token_urlsafe(14); email=f'{role}{index+1}@tavolo.test'; mfa=pyotp.random_base32() if role=='manager' else None
+                pwd=(os.environ['DEMO_STAFF_PASSWORD'] if role=='staff' and os.getenv('HOSTED_DEMO')=='true' else secrets.token_urlsafe(14)); email=f"{role}{index+1}@{os.getenv('DEMO_EMAIL_DOMAIN', 'tavolo.test')}"; mfa=pyotp.random_base32() if role=='manager' else None
                 u=User(email=email,password_hash=hasher.hash(pwd),mfa_config=crypt(mfa) if mfa else None); db.add(u); db.flush()
                 db.add(Membership(user_id=u.id,tenant_id=tenant.id,venue_id=v.id,role=role))
                 accounts.append({'email':email,'password':pwd,'role':role,'mfa_secret':mfa,'restaurant':name,'slug':slug})

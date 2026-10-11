@@ -24,6 +24,8 @@ async def security_headers(request,call_next):
     response.headers['X-Content-Type-Options']='nosniff'; response.headers['Referrer-Policy']='no-referrer'
     response.headers['Cache-Control']='no-store'
     response.headers['Content-Security-Policy']="default-src 'none'; frame-ancestors "+' '.join(settings.origins)
+    if os.getenv('FRONTEND_DIST') and not request.url.path.startswith(('/api/', '/docs', '/openapi.json')):
+        response.headers['Content-Security-Policy']="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
     return response
 
 @app.exception_handler(IntegrityError)
@@ -78,7 +80,7 @@ def signin(data:Login,request:Request,response:Response):
     rate_limit(request,'login',10)
     if request.headers.get('origin') and request.headers['origin'] not in settings.origins: raise HTTPException(403,'Origine non autorizzata.')
     with transaction() as db: raw,csrf,m=login(db,data.email,data.password,data.otp)
-    response.set_cookie('tavolo_session',raw,httponly=True,secure=not settings.demo,samesite='lax',max_age=28800,path='/')
+    response.set_cookie('tavolo_session',raw,httponly=True,secure=settings.base_url.startswith('https://'),samesite='lax',max_age=28800,path='/')
     return {'csrf_token':csrf,'role':m.role}
 @app.post('/api/auth/logout')
 def logout(response:Response,who=Depends(identity)):
@@ -418,3 +420,19 @@ def billing_quote(data:QuoteCreate,who=Depends(identity)):
             db.add(BillingLine(tenant_id=v.tenant_id,document_id=document.id,description=description,quantity=1,unit_net=amount,discount_net=0,tax_rate=tax,line_net=amount,line_tax=total['tax_amount'],line_total=total['amount_total']))
         db.add(AuditLog(tenant_id=v.tenant_id,actor_id=who['user_id'],action='quote_created',target_type='billing_document',target_id=document.id))
         return {'id':str(document.id),'number':document.number,'type':'quote','fiscal_document_issued':False,'charged':False,'amount_net':document.subtotal_net,'tax_amount':document.tax_total,'amount_total':document.grand_total,'tax_rate':str(tax),'currency':'EUR','commercial_assumption':True,'lines':[{'description':d,**t} for (d,_),t in zip(lines,totals)]}
+
+# Hosted demo serves the built UI on the same HTTPS origin as its API.
+if os.getenv('FRONTEND_DIST'):
+    from fastapi.staticfiles import StaticFiles
+    from starlette.exceptions import HTTPException as StarletteHTTPException
+    class DemoSPA(StaticFiles):
+        async def get_response(self, path, scope):
+            if path.startswith(('api/', 'docs', 'openapi.json')):
+                raise StarletteHTTPException(404)
+            try:
+                return await super().get_response(path, scope)
+            except StarletteHTTPException as exc:
+                if exc.status_code != 404 or '.' in path.rsplit('/', 1)[-1]:
+                    raise
+                return await super().get_response('index.html', scope)
+    app.mount('/', DemoSPA(directory=os.environ['FRONTEND_DIST'], html=True), name='demo-ui')

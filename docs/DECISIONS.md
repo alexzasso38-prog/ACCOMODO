@@ -18,3 +18,7 @@
 
 ## Nome e separazione del progetto
 Il prodotto si chiama Accomodo e risiede in `/workspace/accomodo`, separato da Agro Sales AI. Il branding, il titolo browser e la documentazione sono aggiornati. Gli identificatori tecnici PostgreSQL, Compose, cookie e gli account demo già generati restano compatibili con i dati esistenti; non sono il nome commerciale.
+
+
+## Demo Render gratuita
+Pubblicazione di prova con un solo container non root, PostgreSQL e Redis su loopback, UI e API sullo stesso dominio HTTPS. Dati rigenerati a ogni avvio; password staff via variabile privata Render. Nessuna attivazione produzione o provider. Il dispatcher periodico in un processo separato sostituisce Celery/beat soltanto nella piccola demo pubblica.

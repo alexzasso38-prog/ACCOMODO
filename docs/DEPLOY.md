@@ -1,3 +1,5 @@
+La demo pubblica con dati temporanei usa [RENDER_DEMO.md](RENDER_DEMO.md). Il piano seguente riguarda la futura produzione persistente.
+
 # Staging UE — piano riproducibile, non pubblicato
 
 Nessun hosting scelto/acquistato e nessun deploy eseguito. Prerequisiti unici in PREREQUISITES.md. Il Compose è un ambiente demo locale, non una configurazione pubblicabile. Il server fail-fast fuori APP_ENV=demo anche con credenziali valorizzate: gate esplicito finché acceptance e review non sono completate.

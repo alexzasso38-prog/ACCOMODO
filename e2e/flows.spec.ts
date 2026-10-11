@@ -2,8 +2,8 @@ import { test,expect } from '../frontend/node_modules/@playwright/test'
 import AxeBuilder from '../frontend/node_modules/@axe-core/playwright'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-const accounts=JSON.parse(readFileSync(resolve(process.cwd(),'../work/demo-access.json'),'utf8'))
-const staff=accounts.find((a:any)=>a.email==='staff1@tavolo.test')
+const accounts=JSON.parse(readFileSync(process.env.ACCOMODO_DEMO_ACCESS_FILE||resolve(process.cwd(),'../work/demo-access.json'),'utf8'))
+const staff=accounts.find((a:any)=>a.role==='staff'&&a.slug==='osteria-demo')
 function day(offset:number){const d=new Date();d.setDate(d.getDate()+offset);return new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Rome'}).format(d)}
 test.beforeEach(async({context,page})=>{await context.route('**/*',route=>['127.0.0.1','localhost'].includes(new URL(route.request().url()).hostname)?route.continue():route.abort());page.on('pageerror',e=>{throw e})})
 test('cliente senza account: conferma, modifica atomica, calendario e cancellazione',async({page})=>{
@@ -20,8 +20,11 @@ test('richiesta manuale resta distinta da una conferma',async({page})=>{
  await page.goto('/b/giardino-demo');await page.getByLabel('Data',{exact:true}).fill(day(5));await page.getByRole('button',{name:'12:00',exact:true}).click();await page.getByLabel('Nome e cognome').fill('Ospite richiesta E2E');await page.getByLabel('Email',{exact:true}).fill('manuale@example.test');await page.getByRole('checkbox',{name:/Ho letto/}).check();await page.getByRole('button',{name:'Invia richiesta'}).click();await expect(page.getByRole('heading',{name:'Richiesta ricevuta.'})).toBeVisible();await expect(page.getByText(/Questa ricevuta non è una conferma definitiva/)).toBeVisible()
 })
 test('staff: agenda, tavoli, report e percorso telefonico con consenso',async({page})=>{
+ let releaseOld!:()=>void, markStarted!:()=>void, markFinished!:()=>void
+ const gate=new Promise<void>(resolve=>releaseOld=resolve), started=new Promise<void>(resolve=>markStarted=resolve), finished=new Promise<void>(resolve=>markFinished=resolve)
+ await page.route('**/api/admin/reservations?day=*',async route=>{if(new URL(route.request().url()).searchParams.get('day')===day(0)){const response=await route.fetch();markStarted();await gate;await route.fulfill({response});markFinished()}else await route.continue()})
  await page.goto('/');await page.getByLabel('Email',{exact:true}).fill(staff.email);await page.getByLabel('Password',{exact:true}).fill(staff.password);await page.getByRole('button',{name:'Entra nel tuo ristorante'}).click();await expect(page.getByRole('heading',{name:'Ogni ospite, al posto giusto.'})).toBeVisible()
- await page.getByRole('button',{name:'Giorno successivo'}).click();await expect(page.getByText('Ospite sintetico 1')).toBeVisible()
+ await started;await page.getByRole('button',{name:'Giorno successivo'}).click();await expect(page.getByText('Ospite sintetico 1')).toBeVisible();releaseOld();await finished;await expect(page.getByText('Ospite sintetico 1')).toBeVisible()
  await page.getByRole('button',{name:'Tavoli',exact:true}).click();await expect(page.getByRole('heading',{name:'T01',exact:true})).toBeVisible();await page.getByRole('button',{name:'Report',exact:true}).click();await expect(page.getByRole('heading',{name:'Origine delle prenotazioni'})).toBeVisible()
  await page.getByRole('button',{name:'Simulatore telefono',exact:true}).click();await page.getByRole('checkbox',{name:/Premo 1/}).check();await page.getByRole('button',{name:'Simula chiamata',exact:true}).click();await expect(page.getByText('WhatsApp simulato: apri il link di prenotazione')).toBeVisible();await page.getByRole('button',{name:'Chiudi finestra'}).click();await page.getByRole('button',{name:'Oggi',exact:true}).first().click()
  await page.screenshot({path:'../work/admin-desktop.png',fullPage:true})

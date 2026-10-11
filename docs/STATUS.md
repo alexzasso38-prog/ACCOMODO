@@ -16,3 +16,6 @@ Prove: suite Pytest PostgreSQL (28 test), build TS/Vite, Vitest (3 test), Playwr
 
 
 Nome prodotto aggiornato ad Accomodo; cartella autonoma `/workspace/accomodo`. Dati demo preservati.
+
+
+Demo Render: Dockerfile nella radice, frontend e API sullo stesso dominio HTTPS, PostgreSQL/Redis locali al container, account staff configurabili via variabile privata. Configurazione verificata sotto i limiti Free; il deploy esterno attende il clic dell’utente nella dashboard Render. Non è una messa in produzione persistente.
