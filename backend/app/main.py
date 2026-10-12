@@ -1,4 +1,4 @@
-import csv, io, os, secrets
+import csv, io, os, secrets, logging
 from uuid import UUID
 from datetime import date, datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
@@ -20,7 +20,14 @@ app.add_middleware(CORSMiddleware,allow_origins=settings.origins,allow_credentia
 
 @app.middleware('http')
 async def security_headers(request,call_next):
-    response=await call_next(request)
+    try:
+        response=await call_next(request)
+    except Exception as exc:
+        if request.url.path.startswith('/api/whatsapp'):
+            logging.getLogger('uvicorn.error').error('WhatsApp webhook: errore interno %s', type(exc).__name__)
+        raise
+    if request.url.path.startswith('/api/whatsapp'):
+        logging.getLogger('uvicorn.error').warning('WhatsApp webhook: HTTP %s', response.status_code)
     response.headers['X-Content-Type-Options']='nosniff'; response.headers['Referrer-Policy']='no-referrer'
     response.headers['Cache-Control']='no-store'
     response.headers['Content-Security-Policy']="default-src 'none'; frame-ancestors "+' '.join(settings.origins)

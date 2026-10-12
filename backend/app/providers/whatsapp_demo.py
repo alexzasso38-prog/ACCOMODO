@@ -1,5 +1,5 @@
 """Signed Twilio inbound trial demo: guided booking, no paid AI or outbound API."""
-import json, os, re
+import json, os, re, logging
 from datetime import datetime, timedelta
 from urllib.parse import parse_qs
 from zoneinfo import ZoneInfo
@@ -17,6 +17,12 @@ from app.services.reservations import create, digest
 
 router=APIRouter()
 PATH='/api/whatsapp/demo'
+logger=logging.getLogger('uvicorn.error')
+
+def reject(status, detail):
+    # Static reasons only: no request bodies, phone numbers, tokens or signatures.
+    logger.warning('WhatsApp trial: HTTP %s — %s', status, detail)
+    raise HTTPException(status, detail)
 
 def xml(reply):
     response=MessagingResponse(); response.message(reply)
@@ -75,26 +81,28 @@ def status():
 
 @router.post(PATH)
 async def inbound(request:Request):
-    if not settings.demo or os.getenv('WHATSAPP_DEMO_ENABLED')!='true':raise HTTPException(503,'Demo WhatsApp non abilitata.')
+    logger.warning('WhatsApp trial: webhook ricevuto; firma presente=%s', bool(request.headers.get('x-twilio-signature')))
+    if not settings.demo or os.getenv('WHATSAPP_DEMO_ENABLED')!='true':reject(503,'Demo WhatsApp non abilitata.')
     token=os.getenv('TWILIO_AUTH_TOKEN',''); account=os.getenv('TWILIO_ACCOUNT_SID',''); sender=os.getenv('TWILIO_WHATSAPP_FROM','')
-    if not token or not account or not sender:raise HTTPException(503,'Configurazione Twilio incompleta.')
-    if 'application/x-www-form-urlencoded' not in request.headers.get('content-type',''):raise HTTPException(415,'Formato webhook non valido.')
+    if not token or not account or not sender:reject(503,'Configurazione Twilio incompleta.')
+    if 'application/x-www-form-urlencoded' not in request.headers.get('content-type',''):reject(415,'Formato webhook non valido.')
     raw=await request.body()
-    if len(raw)>16384:raise HTTPException(413,'Messaggio troppo grande.')
+    if len(raw)>16384:reject(413,'Messaggio troppo grande.')
     try:values=parse_qs(raw.decode('utf8'),keep_blank_values=True,strict_parsing=True,max_num_fields=100)
-    except (ValueError,UnicodeError):raise HTTPException(400,'Webhook non valido.')
-    if any(len(v)!=1 for v in values.values()):raise HTTPException(400,'Parametri duplicati.')
+    except (ValueError,UnicodeError):reject(400,'Webhook non valido.')
+    if any(len(v)!=1 for v in values.values()):reject(400,'Parametri duplicati.')
     fields={k:v[0] for k,v in values.items()}
     # Fixed configured HTTPS origin: never trust a caller-provided Host header.
     url=settings.base_url.rstrip('/')+PATH
-    if request.url.query:raise HTTPException(400,'Query non supportata.')
-    if not RequestValidator(token).validate(url,fields,request.headers.get('x-twilio-signature','')):raise HTTPException(403,'Firma non valida.')
-    if fields.get('AccountSid')!=account or fields.get('To')!=sender:raise HTTPException(403,'Account o mittente non autorizzato.')
+    if request.url.query:reject(400,'Query non supportata.')
+    if not RequestValidator(token).validate(url,fields,request.headers.get('x-twilio-signature','')):reject(403,'Firma non valida.')
+    if fields.get('AccountSid')!=account:reject(403,'Account Twilio non corrispondente.')
+    if fields.get('To')!=sender:reject(403,'Numero mittente trial non corrispondente.')
     phone=fields.get('From','').removeprefix('whatsapp:'); sid=fields.get('MessageSid','')
-    if not re.fullmatch(r'\+[1-9]\d{7,14}',phone) or not fields.get('From','').startswith('whatsapp:') or not re.fullmatch(r'SM[0-9a-fA-F]{32}',sid):raise HTTPException(400,'Messaggio non valido.')
+    if not re.fullmatch(r'\+[1-9]\d{7,14}',phone) or not fields.get('From','').startswith('whatsapp:') or not re.fullmatch(r'SM[0-9a-fA-F]{32}',sid):reject(400,'Messaggio non valido.')
     with transaction() as db:
         route=db.scalar(select(VenueRoute).where(VenueRoute.slug==os.getenv('WHATSAPP_DEMO_VENUE','osteria-demo')))
-        if not route:raise HTTPException(503,'Ristorante demo non disponibile.')
+        if not route:reject(503,'Ristorante demo non disponibile.')
         tenant,vid=route.tenant_id,route.venue_id
     with transaction(tenant) as db:
         venue=db.get(Venue,vid);tenant_lock(db,vid)

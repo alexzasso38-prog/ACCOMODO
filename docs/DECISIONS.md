@@ -25,3 +25,6 @@ Pubblicazione di prova con un solo container non root, PostgreSQL e Redis su loo
 
 
 Demo WhatsApp senza AI a pagamento: TwiML inbound, routing server al ristorante demo, firma Twilio obbligatoria, stato e risposta cifrati in PostgreSQL nella stessa transazione della prenotazione. Nessun invio outbound né rimozione dei gate provider.
+
+
+Diagnostica WhatsApp trial: log di ricezione, presenza della firma, rifiuti distinti e stato HTTP. Non registrano body, recapiti, segreti o firma. Necessaria perché il Debugger Twilio è inaccessibile nel trial dell’utente.

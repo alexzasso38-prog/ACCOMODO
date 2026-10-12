@@ -46,3 +46,17 @@ def test_disabled_bad_signature_and_wrong_account(client,tenants,monkeypatch):
     assert client.post(PATH,content='Body=ciao',headers={'Content-Type':'application/x-www-form-urlencoded'}).status_code==403
     assert send(client,'ciao',account='AC'+'2'*32).status_code==403
     assert send(client,'ciao',phone='hidden').status_code==400
+
+
+def test_diagnostics_never_log_message_phone_token_or_signature(client,tenants,monkeypatch,caplog):
+    setup(monkeypatch)
+    response=send(client,'contenuto-privato-di-test')
+    assert response.status_code==200
+    assert 'webhook ricevuto' in caplog.text and 'HTTP 200' in caplog.text
+    for secret in (TOKEN,ACCOUNT,SENDER,'+390000000001','contenuto-privato-di-test'):
+        assert secret not in caplog.text
+    caplog.clear()
+    response=client.post(PATH,content='Body=contenuto-privato-di-test',headers={'Content-Type':'application/x-www-form-urlencoded'})
+    assert response.status_code==403
+    assert 'Firma non valida' in caplog.text and 'firma presente=False' in caplog.text
+    assert 'contenuto-privato-di-test' not in caplog.text

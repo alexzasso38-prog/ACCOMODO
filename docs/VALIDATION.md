@@ -22,3 +22,6 @@ Immagine Docker di demo compilata e avviata in QA con 512 MiB e 0,1 CPU, Postgre
 
 
 WhatsApp trial: 30 test PostgreSQL passati, inclusi percorso completo, nessuna creazione prima di CONFERMO, replay senza duplicati, isolamento numero/tenant, cifratura stato, firma/account invalidi e feature disabilitata. Provider reale non ancora provato.
+
+
+Diagnostica trial: 3 test webhook passati, incluso controllo che body, numero, Account SID e Auth Token non compaiano nei log. Causa della mancata risposta reale ancora da determinare con i nuovi log Render; non richiede upgrade Twilio.

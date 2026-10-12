@@ -22,3 +22,6 @@ Demo Render: Dockerfile nella radice, frontend e API sullo stesso dominio HTTPS,
 
 
 WhatsApp trial: assistente guidato e webhook firmato implementati; disponibilità, prenotazione e replay atomici. In attesa di credenziali private e configurazione webhook da dashboard utente. Nessuna telefonata attiva, nessun messaggio provider inviato durante i test.
+
+
+Diagnostica WhatsApp trial: log di ricezione, presenza della firma, rifiuti distinti e stato HTTP. Non registrano body, recapiti, segreti o firma. Necessaria perché il Debugger Twilio è inaccessibile nel trial dell’utente.
