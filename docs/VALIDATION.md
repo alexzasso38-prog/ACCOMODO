@@ -19,3 +19,6 @@ Limiti: test automatizzati locali non equivalgono a usability test, audit legale
 
 ## Demo HTTPS per Render
 Immagine Docker di demo compilata e avviata in QA con 512 MiB e 0,1 CPU, PostgreSQL/Redis privati e healthcheck `/ready` positivo. Frontend definitivo compilato con TypeScript/Vite e verificato via proxy HTTPS locale: 4 Playwright passati (13,6 s), inclusa una risposta agenda precedente consegnata dopo quella del giorno selezionato. 28 test PostgreSQL di regressione passati. Cookie Secure e login dei due tenant verificati. Il consumo memoria osservato era circa 254 MiB, non una misura del picco né una garanzia di carico. Nessun deploy Render eseguito dagli strumenti: avvio dalla dashboard dell’utente ancora da fare. Dati temporanei rigenerati a ogni avvio.
+
+
+WhatsApp trial: 30 test PostgreSQL passati, inclusi percorso completo, nessuna creazione prima di CONFERMO, replay senza duplicati, isolamento numero/tenant, cifratura stato, firma/account invalidi e feature disabilitata. Provider reale non ancora provato.

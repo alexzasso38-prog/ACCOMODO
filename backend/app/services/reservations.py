@@ -102,14 +102,14 @@ def create(db,venue,data,source='web',actor_id=None,clock=None):
     if data.channel in {'whatsapp','sms'} and not data.phone: raise HTTPException(422,'Indica il numero per questo canale.')
     customer=Customer(tenant_id=venue.tenant_id,name=data.name.strip(),email=crypt(data.email),phone_e164=crypt(data.phone),preferred_channel=data.channel)
     db.add(customer); db.flush()
-    db.add(ConsentRecord(tenant_id=venue.tenant_id,customer_id=customer.id,purpose='booking_processing',channel='web',granted=True,source='staff' if source!='web' else 'web',policy_version='demo-v1'))
-    db.add(ConsentRecord(tenant_id=venue.tenant_id,customer_id=customer.id,purpose='whatsapp_opt_in',channel='whatsapp',granted=data.whatsapp_opt_in,source='staff' if source!='web' else 'web',policy_version='demo-v1'))
+    db.add(ConsentRecord(tenant_id=venue.tenant_id,customer_id=customer.id,purpose='booking_processing',channel='web',granted=True,source='whatsapp' if source=='whatsapp' else 'staff' if source!='web' else 'web',policy_version='demo-v1'))
+    db.add(ConsentRecord(tenant_id=venue.tenant_id,customer_id=customer.id,purpose='whatsapp_opt_in',channel='whatsapp',granted=data.whatsapp_opt_in,source='whatsapp' if source=='whatsapp' else 'staff' if source!='web' else 'web',policy_version='demo-v1'))
     if venue.deposit_cents and venue.deposit_tax_rate is None: raise HTTPException(409,'Acconto non configurato: aliquota mancante.')
     snapshot=money(venue.deposit_cents,venue.deposit_tax_rate) if venue.deposit_cents and source!='walk_in' else {}
     status='SEATED' if source=='walk_in' else 'HOLD' if data.hold else 'PENDING_APPROVAL' if venue.booking_mode=='manual' else 'AWAITING_PAYMENT' if snapshot else 'CONFIRMED'
     r=Reservation(tenant_id=venue.tenant_id,venue_id=venue.id,customer_id=customer.id,starts_at=starts,ends_at=ends,party_size=data.party_size,source=source,status=status,public_reference=secrets.token_hex(5).upper(),hold_expires_at=clock+timedelta(minutes=5) if status=='HOLD' else None,pending_expires_at=clock+timedelta(minutes=venue.pending_expiry_minutes) if status=='PENDING_APPROVAL' else None,payment_expires_at=clock+timedelta(minutes=15) if status=='AWAITING_PAYMENT' else None,cancellation_policy_snapshot={'version':'demo-v1','free_until_start':True,'refund':'full-simulation'},deposit_policy_snapshot=snapshot)
     db.add(r); db.flush(); allocate(db,venue,r,starts,data.party_size,clock)
-    event(db,r,'created',actor='customer' if source=='web' else 'staff',actor_id=actor_id)
+    event(db,r,'created',actor='customer' if source in {'web','whatsapp'} else 'staff',actor_id=actor_id)
     if status!='HOLD': enqueue(db,r,'received')
     if status in {'CONFIRMED','SEATED'}: enqueue(db,r,'confirmed'); reminder(db,r,venue,clock)
     if status=='AWAITING_PAYMENT': enqueue(db,r,'payment_due')

@@ -25,7 +25,7 @@ export function BookingForm({slug,onBooked,staff=false,initial}:{slug:string;onB
  {staff&&<label className="check-label"><input type="checkbox" name="walkin" checked={walkin} onChange={e=>setWalkin(e.target.checked)}/>Walk-in: arrivo adesso, senza prenotazione (l’orario scelto sopra viene ignorato)</label>}
  {venue && venue.deposit && venue.deposit.amount_total>0&&<><p>Acconto dimostrativo del ristorante. Cancellazione gratuita fino all’inizio; rimborso completo simulato.</p><MoneySummary value={venue.deposit}/><label className="check-label"><input type="checkbox" required/>Accetto le condizioni di acconto e cancellazione della demo.</label></>}
  {venue?.booking_mode==='manual'&&<div className="notice">Invierai una richiesta, che sarà confermata soltanto dopo l’approvazione del locale. Il tavolo resta riservato per il tempo indicato.</div>}
- <ErrorBox error={error}/><button className="primary wide" disabled={loading||(!walkin&&(loadingSlots||!selected))}>{loading?'Invio in corso…':venue?.booking_mode==='manual'?'Invia richiesta':'Prenota il tuo tavolo'}<ArrowRight size={18}/></button><p className="privacy-note"><ShieldCheck size={14}/> Nessun account richiesto. Nessun invio reale nella demo.</p>
+ <ErrorBox error={error}/><button className="primary wide" disabled={loading||(!walkin&&(loadingSlots||!selected))}>{loading?'Invio in corso…':venue?.booking_mode==='manual'?'Invia richiesta':'Prenota il tuo tavolo'}<ArrowRight size={18}/></button><p className="privacy-note"><ShieldCheck size={14}/> Nessun account richiesto. Usa dati fittizi. WhatsApp trial solo se configurato.</p>
  </form>
 }
 

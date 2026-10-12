@@ -19,3 +19,6 @@ Nome prodotto aggiornato ad Accomodo; cartella autonoma `/workspace/accomodo`. D
 
 
 Demo Render: Dockerfile nella radice, frontend e API sullo stesso dominio HTTPS, PostgreSQL/Redis locali al container, account staff configurabili via variabile privata. Configurazione verificata sotto i limiti Free; il deploy esterno attende il clic dell’utente nella dashboard Render. Non è una messa in produzione persistente.
+
+
+WhatsApp trial: assistente guidato e webhook firmato implementati; disponibilità, prenotazione e replay atomici. In attesa di credenziali private e configurazione webhook da dashboard utente. Nessuna telefonata attiva, nessun messaggio provider inviato durante i test.

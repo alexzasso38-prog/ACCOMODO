@@ -421,6 +421,9 @@ def billing_quote(data:QuoteCreate,who=Depends(identity)):
         db.add(AuditLog(tenant_id=v.tenant_id,actor_id=who['user_id'],action='quote_created',target_type='billing_document',target_id=document.id))
         return {'id':str(document.id),'number':document.number,'type':'quote','fiscal_document_issued':False,'charged':False,'amount_net':document.subtotal_net,'tax_amount':document.tax_total,'amount_total':document.grand_total,'tax_rate':str(tax),'currency':'EUR','commercial_assumption':True,'lines':[{'description':d,**t} for (d,_),t in zip(lines,totals)]}
 
+from app.providers.whatsapp_demo import router as whatsapp_demo_router
+app.include_router(whatsapp_demo_router)
+
 # Hosted demo serves the built UI on the same HTTPS origin as its API.
 if os.getenv('FRONTEND_DIST'):
     from fastapi.staticfiles import StaticFiles

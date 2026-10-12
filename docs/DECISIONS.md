@@ -22,3 +22,6 @@ Il prodotto si chiama Accomodo e risiede in `/workspace/accomodo`, separato da A
 
 ## Demo Render gratuita
 Pubblicazione di prova con un solo container non root, PostgreSQL e Redis su loopback, UI e API sullo stesso dominio HTTPS. Dati rigenerati a ogni avvio; password staff via variabile privata Render. Nessuna attivazione produzione o provider. Il dispatcher periodico in un processo separato sostituisce Celery/beat soltanto nella piccola demo pubblica.
+
+
+Demo WhatsApp senza AI a pagamento: TwiML inbound, routing server al ristorante demo, firma Twilio obbligatoria, stato e risposta cifrati in PostgreSQL nella stessa transazione della prenotazione. Nessun invio outbound né rimozione dei gate provider.

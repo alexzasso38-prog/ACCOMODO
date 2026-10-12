@@ -4,7 +4,7 @@ import { Booking, statuses, Money, euro } from '../lib'
 export function Brand(){return <a className="brand" href="/"><span className="brand-icon"><UtensilsCrossed size={22}/></span>Accomodo<span className="brand-dot">.</span></a>}
 export function Badge({r}:{r:Booking}){return <span className={'badge '+r.status.toLowerCase()}><span className="status-dot"/>{statuses[r.status]||r.status}</span>}
 export function ErrorBox({error}:{error:string}){return error?<div className="error" role="alert">{error}</div>:null}
-export function DemoBanner(){return <div className="demo-banner"><span className="demo-dot"/>AMBIENTE DEMO · Ristoranti e ospiti fittizi. Messaggi e pagamenti sono simulati.</div>}
+export function DemoBanner(){return <div className="demo-banner"><span className="demo-dot"/>AMBIENTE DEMO · Ristoranti e ospiti fittizi. Pagamenti simulati. WhatsApp trial disponibile solo se configurato.</div>}
 export function MoneySummary({value,label='Totale acconto'}:{value:Money;label?:string}){return <div className="money"><div><span>Imponibile</span><b>{euro(value.amount_net)}</b></div><div><span>IVA {value.tax_rate}%</span><b>{euro(value.tax_amount)}</b></div><div className="money-total"><span>{label}</span><b>{euro(value.amount_total)}</b></div></div>}
 export function Modal({title,children,onClose}:{title:string;children:ReactNode;onClose:()=>void}){
  const ref=useRef<HTMLDialogElement>(null)
