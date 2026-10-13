@@ -6,6 +6,10 @@ Demo operativa in italiano per prenotazioni di ristoranti. Progetto autonomo nel
 
 Per ottenere un link HTTPS senza terminale, seguire [la guida Render](docs/RENDER_DEMO.md). Il Dockerfile nella radice pubblica una demo completa con dati temporanei. La variabile privata `DEMO_STAFF_PASSWORD` è obbligatoria; gli account online sono `staff1@accomodo.test` e `staff2@accomodo.test`. Nessun database o piano a pagamento è richiesto dalla configurazione.
 
+## WhatsApp: integrazione di prova Meta
+
+Il nuovo trial Twilio non supporta le risposte TwiML XML del sandbox classico. L’adattatore Meta Cloud API è pronto per un numero di test, ma richiede autorizzazione e credenziali Meta prima dell’attivazione: [guida e stato](docs/META_DEMO.md). Nessuna migrazione del numero personale o acquisto è automatico.
+
 ## Sviluppo locale: Docker Compose
 
 Prerequisiti espliciti: Git, Docker Engine con daemon avviato, Docker Compose v2.24+, Python 3.12+ (per generare la configurazione locale), almeno 4 GB RAM e accesso ai registry Docker/PyPI/npm per la build. Non servono account provider. Node.js non è richiesto per usare la demo Docker; per test E2E sul computer occorrono Node.js 22.12+ o 24 e le dipendenze Linux di Chromium. Su Windows usare WSL2 con Docker integrato.

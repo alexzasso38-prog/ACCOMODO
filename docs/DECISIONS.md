@@ -28,3 +28,6 @@ Demo WhatsApp senza AI a pagamento: TwiML inbound, routing server al ristorante 
 
 
 Diagnostica WhatsApp trial: log di ricezione, presenza della firma, rifiuti distinti e stato HTTP. Non registrano body, recapiti, segreti o firma. Necessaria perché il Debugger Twilio è inaccessibile nel trial dell’utente.
+
+
+Meta Cloud API sostituisce il solo trasporto della prova WhatsApp, mantenendo il percorso guidato e il motore prenotazioni. Ricezione/risposta sono separate: Graph API dopo commit, nessun replay automatico degli esiti incerti. Firma obbligatoria e verifica SANDBOX del mittente fail-closed. Nessun acquisto né inserimento di carte; autorizzazione Meta rimane del titolare.

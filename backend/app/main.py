@@ -430,6 +430,8 @@ def billing_quote(data:QuoteCreate,who=Depends(identity)):
 
 from app.providers.whatsapp_demo import router as whatsapp_demo_router
 app.include_router(whatsapp_demo_router)
+from app.providers.meta_demo import router as meta_demo_router
+app.include_router(meta_demo_router)
 
 # Hosted demo serves the built UI on the same HTTPS origin as its API.
 if os.getenv('FRONTEND_DIST'):

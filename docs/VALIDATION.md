@@ -25,3 +25,7 @@ WhatsApp trial: 30 test PostgreSQL passati, inclusi percorso completo, nessuna c
 
 
 Diagnostica trial: 3 test webhook passati, incluso controllo che body, numero, Account SID e Auth Token non compaiano nei log. Causa della mancata risposta reale ancora da determinare con i nuovi log Render; non richiede upgrade Twilio.
+
+
+## Meta test adapter
+39 test PostgreSQL passati (52,93 s), inclusi firma/challenge, percorso completo fino a prenotazione, replay senza nuovo invio/prenotazione, isolamento tenant e destinatari, cifratura, mancata creazione prima di CONFERMO, mittente LIVE o non verificabile bloccato, eventi vecchi ignorati, budget50, esito incerto senza reinvio e modalità manuale. Le risposte HTTP Meta nei test sono simulate con MockTransport, non costituiscono validazione provider reale. Nessun messaggio reale inviato. Render predisposto con verifica webhook privata e allowlist del tester; integrazione disabilitata in attesa dell’autorizzazione Meta.

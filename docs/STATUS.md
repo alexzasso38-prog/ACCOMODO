@@ -25,3 +25,6 @@ WhatsApp trial: assistente guidato e webhook firmato implementati; disponibilit�
 
 
 Diagnostica WhatsApp trial: log di ricezione, presenza della firma, rifiuti distinti e stato HTTP. Non registrano body, recapiti, segreti o firma. Necessaria perché il Debugger Twilio è inaccessibile nel trial dell’utente.
+
+
+Meta test: adattatore, challenge/firma webhook, messaggi API in outbox atomica e test locali preparati. Invio limitato a mittente Graph SANDBOX e destinatari verificati, massimo 50 risposte/demo. Nessuna autorizzazione Meta o credenziale disponibile: invio non attivato, prova end-to-end provider non completata. Incompatibilità Twilio trial/TwiML individuata dai log Render e dalla documentazione ufficiale.
