@@ -31,3 +31,6 @@ Diagnostica WhatsApp trial: log di ricezione, presenza della firma, rifiuti dist
 
 
 Meta Cloud API sostituisce il solo trasporto della prova WhatsApp, mantenendo il percorso guidato e il motore prenotazioni. Ricezione/risposta sono separate: Graph API dopo commit, nessun replay automatico degli esiti incerti. Firma obbligatoria e verifica SANDBOX del mittente fail-closed. Nessun acquisto né inserimento di carte; autorizzazione Meta rimane del titolare.
+
+
+Agenda staff: polling leggero (15 s, solo scheda visibile) più refresh al focus, invece di WebSocket/SSE: nessuna infrastruttura aggiuntiva sulla demo Render a processo singolo. Endpoint `upcoming` limitato alla sede dello staff e a stati non terminali, massimo 200 righe.

@@ -76,7 +76,7 @@ class SlotView(BaseModel):
 class ReservationView(BaseModel):
     id:UUID; public_reference:str; starts_at:datetime; ends_at:datetime
     party_size:int; status:Literal['HOLD','PENDING_APPROVAL','AWAITING_PAYMENT','CONFIRMED','SEATED','COMPLETED','CANCELLED','EXPIRED','REJECTED','NO_SHOW']
-    version:int; name:str; source:str; deposit:dict; expires_at:datetime|None=None; tables:list[str]|None=None
+    version:int; name:str; source:str; deposit:dict; expires_at:datetime|None=None; tables:list[str]|None=None; created_at:datetime|None=None
 class BookingCreated(BaseModel):
     reservation:ReservationView; access_token:str; manage_url:str
 class VenueView(BaseModel):

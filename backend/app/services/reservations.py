@@ -130,6 +130,6 @@ def modify(db,venue,r,data,actor_id=None,clock=None):
 
 def serialize(db,r,public=False):
     c=db.get(Customer,r.customer_id)
-    result={'id':str(r.id),'public_reference':r.public_reference,'starts_at':r.starts_at,'ends_at':r.ends_at,'party_size':r.party_size,'status':r.status,'version':r.version,'name':c.name,'source':r.source,'deposit':r.deposit_policy_snapshot,'expires_at':r.hold_expires_at if r.status=='HOLD' else r.pending_expires_at if r.status=='PENDING_APPROVAL' else r.payment_expires_at if r.status=='AWAITING_PAYMENT' else None}
+    result={'id':str(r.id),'public_reference':r.public_reference,'starts_at':r.starts_at,'ends_at':r.ends_at,'party_size':r.party_size,'status':r.status,'version':r.version,'name':c.name,'source':r.source,'created_at':r.created_at,'deposit':r.deposit_policy_snapshot,'expires_at':r.hold_expires_at if r.status=='HOLD' else r.pending_expires_at if r.status=='PENDING_APPROVAL' else r.payment_expires_at if r.status=='AWAITING_PAYMENT' else None}
     if not public: result['tables']=[x for x in db.scalars(select(Resource.name).join(Allocation,Allocation.resource_id==Resource.id).where(Allocation.reservation_id==r.id,Allocation.active.is_(True)))]
     return result

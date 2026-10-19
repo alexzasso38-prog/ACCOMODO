@@ -28,3 +28,6 @@ Diagnostica WhatsApp trial: log di ricezione, presenza della firma, rifiuti dist
 
 
 Meta test: adattatore, challenge/firma webhook, messaggi API in outbox atomica e test locali preparati. Invio limitato a mittente Graph SANDBOX e destinatari verificati, massimo 50 risposte/demo. Nessuna autorizzazione Meta o credenziale disponibile: invio non attivato, prova end-to-end provider non completata. Incompatibilità Twilio trial/TwiML individuata dai log Render e dalla documentazione ufficiale.
+
+
+Agenda staff: le prenotazioni dal form pubblico per giorni diversi da quello visualizzato non risultavano visibili (agenda ferma su “oggi”, mai aggiornata da sola). Ora l’agenda si aggiorna ogni 15 s e al ritorno sulla scheda, segnala le nuove prenotazioni online con “Vai al giorno” e mostra i prossimi giorni con il numero di prenotazioni. Test backend su PostgreSQL e verifica browser completati. Limite invariato della demo Render: un riavvio/sospensione azzera il database.
