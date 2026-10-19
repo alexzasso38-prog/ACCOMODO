@@ -54,3 +54,14 @@ def test_csv_injection_and_ics_redaction(client,tenants):
     with transaction(tenants[0]['tenant']) as db:
         assert db.scalar(select(BookingAccessToken)).token_hash!=r['access_token']
         assert 'example.test' not in db.scalar(select(Customer)).email
+
+def test_public_booking_reaches_staff_agenda_and_upcoming(client,tenants):
+    obj=client.post('/api/public/test-0/reservations',json=payload(hour=20)).json()
+    rid=obj['reservation']['id']; day=obj['reservation']['starts_at'][:10]
+    sign_in(client)
+    assert rid in [r['id'] for r in client.get('/api/admin/reservations?day='+day).json()]
+    upcoming=client.get('/api/admin/reservations/upcoming').json()
+    assert [r['id'] for r in upcoming]==[rid] and upcoming[0]['source']=='web' and upcoming[0]['created_at']
+    # Tenant isolation: the other restaurant never sees it.
+    client.post('/api/auth/logout'); sign_in(client,index=1)
+    assert client.get('/api/admin/reservations/upcoming').json()==[]

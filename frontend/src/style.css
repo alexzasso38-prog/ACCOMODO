@@ -8,3 +8,5 @@
 
 .mini-action,.icon-button{min-height:28px;min-width:28px}input::placeholder{color:#68755f}.art-caption{color:#596b54}
 .search-box{flex-direction:row;margin-bottom:0}.search-box input{min-height:0}.agenda-heading h2::first-letter{text-transform:uppercase}
+.upcoming-days{display:flex;align-items:center;gap:4px;padding:0 23px 15px;overflow-x:auto}.upcoming-days>span{font-size:9px;letter-spacing:.8px;color:var(--muted);margin-right:6px;white-space:nowrap;text-transform:uppercase}.upcoming-days .tab{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);text-transform:capitalize}.upcoming-days .tab b{font-size:9px;background:#eaf1e8;color:var(--green);border-radius:4px;padding:1px 5px}
+@media(max-width:700px){.upcoming-days{padding:0 15px 13px}}

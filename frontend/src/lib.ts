@@ -1,4 +1,4 @@
-export type Booking = {id:string; public_reference:string; starts_at:string; ends_at:string; party_size:number;status:string;version:number;name:string;source:string;tables?:string[];deposit?:Money;expires_at?:string}
+export type Booking = {id:string; public_reference:string; starts_at:string; ends_at:string; party_size:number;status:string;version:number;name:string;source:string;tables?:string[];deposit?:Money;expires_at?:string;created_at?:string}
 export type Money = {amount_net:number; tax_amount:number;amount_total:number;tax_rate:string;currency:string}
 export type Venue = {name:string;slug:string;address:string;timezone:string;booking_mode:string;max_party_size:number;menu_url:string;directions_url:string;pending_policy:string;deposit:Money;demo:boolean}
 export type Slot = {starts_at:string;ends_at:string;label:string}

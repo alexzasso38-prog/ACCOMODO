@@ -13,6 +13,7 @@ OpenAPI tipizzato è generato da FastAPI. Endpoint staff: cookie `tavolo_session
 | `GET .../booking/calendar.ics` | ICS senza PII, dopo conferma |
 | `POST .../booking/payment-simulation` | Solo demo, event_id; un solo pagamento, nessuna carta |
 | `GET/POST /api/admin/reservations` | Agenda per giorno IANA locale, inserimento staff/walk-in |
+| `GET /api/admin/reservations/upcoming` | Prenotazioni attive da oggi in poi (tutti i giorni), per avvisi e conteggi per giorno nell’agenda |
 | `PATCH /api/admin/reservations/{uuid}` | Modifica con starts_at, party_size, version |
 | `POST .../{uuid}/status` | Transizione con version; acconto impedisce conferma prematura |
 | `GET/POST /api/admin/resources`, `POST /combinations` | Tavoli fisici, membri distinti/coerenti con sede |

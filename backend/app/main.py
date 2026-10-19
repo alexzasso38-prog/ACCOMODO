@@ -166,6 +166,14 @@ def agenda(day:date,who=Depends(identity)):
         v=venue_for(db,who); service.expire(db,v,now())
         start=datetime.combine(day,datetime.min.time(),ZoneInfo(v.timezone)); end=datetime.combine(day+timedelta(days=1),datetime.min.time(),ZoneInfo(v.timezone))
         return [service.serialize(db,r) for r in db.scalars(select(Reservation).where(Reservation.venue_id==v.id,Reservation.starts_at>=start,Reservation.starts_at<end).order_by(Reservation.starts_at))]
+@app.get('/api/admin/reservations/upcoming',response_model=list[ReservationView])
+def upcoming(who=Depends(identity)):
+    # Every active booking from today on, so online bookings for other days are never hidden by the day view.
+    with transaction(who['tenant_id']) as db:
+        v=venue_for(db,who); service.expire(db,v,now())
+        start=datetime.combine(datetime.now(ZoneInfo(v.timezone)).date(),datetime.min.time(),ZoneInfo(v.timezone))
+        q=select(Reservation).where(Reservation.venue_id==v.id,Reservation.starts_at>=start,Reservation.status.not_in(service.TERMINAL)).order_by(Reservation.starts_at).limit(200)
+        return [service.serialize(db,r) for r in db.scalars(q)]
 @app.post('/api/admin/reservations',status_code=201,response_model=BookingCreated)
 def staff_create(data:Booking,walk_in:bool=False,who=Depends(identity)):
     with transaction(who['tenant_id']) as db:

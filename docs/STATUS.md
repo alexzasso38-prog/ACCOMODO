@@ -31,3 +31,6 @@ Meta test: adattatore, challenge/firma webhook, messaggi API in outbox atomica e
 
 
 Meta test – pulsanti: il webhook accetta anche il tocco su un pulsante "risposta rapida" di un modello approvato (`type=button`, es. "Prenota") e i pulsanti/elenchi dei messaggi interattivi (`button_reply`/`list_reply`), trattati come il testo equivalente. Payload malformati o tipi non supportati ignorati senza errori né risposte. Test locali su PostgreSQL superati; prova con il modello Meta reale non ancora eseguita.
+
+
+Agenda staff: le prenotazioni dal form pubblico per giorni diversi da quello visualizzato non risultavano visibili (agenda ferma su “oggi”, mai aggiornata da sola). Ora l’agenda si aggiorna ogni 15 s e al ritorno sulla scheda, segnala le nuove prenotazioni online con “Vai al giorno” e mostra i prossimi giorni con il numero di prenotazioni. Test backend su PostgreSQL e verifica browser completati. Limite invariato della demo Render: un riavvio/sospensione azzera il database.
