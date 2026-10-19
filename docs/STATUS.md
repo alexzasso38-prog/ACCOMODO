@@ -28,3 +28,6 @@ Diagnostica WhatsApp trial: log di ricezione, presenza della firma, rifiuti dist
 
 
 Meta test: adattatore, challenge/firma webhook, messaggi API in outbox atomica e test locali preparati. Invio limitato a mittente Graph SANDBOX e destinatari verificati, massimo 50 risposte/demo. Nessuna autorizzazione Meta o credenziale disponibile: invio non attivato, prova end-to-end provider non completata. Incompatibilità Twilio trial/TwiML individuata dai log Render e dalla documentazione ufficiale.
+
+
+Meta test – pulsanti: il webhook accetta anche il tocco su un pulsante "risposta rapida" di un modello approvato (`type=button`, es. "Prenota") e i pulsanti/elenchi dei messaggi interattivi (`button_reply`/`list_reply`), trattati come il testo equivalente. Payload malformati o tipi non supportati ignorati senza errori né risposte. Test locali su PostgreSQL superati; prova con il modello Meta reale non ancora eseguita.

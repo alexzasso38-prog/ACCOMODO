@@ -64,6 +64,22 @@ def venue_route():
         return route.tenant_id, route.venue_id
 
 
+def message_body(message):
+    # Testo scritto, oppure tocco su un pulsante: "risposta rapida" di un modello
+    # (type=button) o pulsante di un messaggio interattivo (button_reply/list_reply).
+    def field(value, key):
+        return value.get(key) if isinstance(value, dict) else None
+    kind = message.get('type')
+    if kind == 'text':
+        return field(message.get('text'), 'body')
+    if kind == 'button':
+        return field(message.get('button'), 'text')
+    if kind == 'interactive':
+        reply = message.get('interactive')
+        return field(field(reply, 'button_reply') or field(reply, 'list_reply'), 'title')
+    return None
+
+
 def ingest(cfg, message):
     phone = message.get('from', '')
     sid = message.get('id', '')
@@ -75,9 +91,9 @@ def ingest(cfg, message):
         return False
     if not now() - timedelta(minutes=10) <= timestamp <= now() + timedelta(minutes=2):
         return False
-    if message.get('type') != 'text' or not isinstance(message.get('text', {}).get('body'), str):
+    body = message_body(message)
+    if not isinstance(body, str):
         return False
-    body = message['text']['body']
     if len(body) > 4096:
         return False
     tid, vid = venue_route()

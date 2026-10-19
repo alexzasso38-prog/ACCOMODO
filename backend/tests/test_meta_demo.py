@@ -133,3 +133,35 @@ def test_manual_venue_does_not_claim_confirmation(client,tenants,monkeypatch):
     for body in ('PRENOTA','SI','DOMANI','2','19:00','Ospite Manuale','CONFERMO'):
         assert send(client,body).status_code==200
     assert 'approvazione' in calls[-1]['text']['body']
+
+
+def send_message(client, message):
+    # Come send(), ma con un messaggio WhatsApp arbitrario (pulsanti, tipi non supportati).
+    message={'id':'wamid.'+uuid4().hex,'from':PHONE,'timestamp':str(int(now().timestamp())),**message}
+    data=envelope()
+    data['entry'][0]['changes'][0]['value']['messages']=[message]
+    raw=json.dumps(data).encode()
+    signature='sha256='+hmac.new(SECRET.encode(),raw,hashlib.sha256).hexdigest()
+    return client.post(meta.PATH,content=raw,headers={'Content-Type':'application/json','X-Hub-Signature-256':signature})
+
+
+def test_template_quick_reply_button_starts_chat(client,tenants,monkeypatch):
+    calls=configure(monkeypatch)
+    assert send_message(client,{'type':'button','button':{'text':'Prenota','payload':'Prenota'}}).status_code==200
+    assert len(calls)==1 and 'Informativa' in calls[-1]['text']['body']
+    assert send_message(client,{'type':'interactive','interactive':{'type':'button_reply','button_reply':{'id':'si','title':'SI'}}}).status_code==200
+    assert 'Per quale giorno' in calls[-1]['text']['body']
+
+
+@pytest.mark.parametrize('message',[
+    {'type':'button','button':'Prenota'},
+    {'type':'interactive','interactive':{'type':'button_reply','button_reply':None}},
+    {'type':'interactive','interactive':['Prenota']},
+    {'type':'image','image':{'id':'media'}},
+])
+def test_malformed_or_unsupported_messages_are_ignored(client,tenants,monkeypatch,message):
+    calls=configure(monkeypatch)
+    assert send_message(client,message).status_code==200
+    assert not calls
+    with transaction(tenants[0]['tenant']) as db:
+        assert db.scalar(select(func.count()).select_from(ConversationMessage))==0
